@@ -9,9 +9,9 @@ Gem::Specification.new do |s|
   s.version     = SilenceRails::VERSION
   s.authors     = ["Pieter van de Bruggen"]
   s.email       = ["pvande@gmail.com"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of SilenceRails."
-  s.description = "TODO: Description of SilenceRails."
+  s.homepage    = "https://github.com/pvande/silence_rails"
+  s.summary     = "Remove Rails default instrumentation for cleaner logging."
+  s.description = "Clear out the Rails default instrumentation to be replaced by your own logging code."
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
