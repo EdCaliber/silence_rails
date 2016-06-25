@@ -13,22 +13,29 @@ module SilenceRails
   end
 
   def unsubscribe_default_subscribers
-    ActiveSupport::LogSubscriber.log_subscribers.dup.each do |subscriber|
-      case subscriber
-      when ActionController::LogSubscriber,
-           ActionMailer::LogSubscriber,
-           ActionView::LogSubscriber,
-           ActiveRecord::LogSubscriber,
-           ActiveJob::Logging::LogSubscriber
-        unsubscribe(subscriber)
-      end
-    end
+    klasses = [
+      ActionController::LogSubscriber,
+      ActionMailer::LogSubscriber,
+      ActionView::LogSubscriber,
+      ActiveRecord::LogSubscriber,
+      ActiveJob::Logging::LogSubscriber
+    ]
+
+    subscribers = ActiveSupport::LogSubscriber.subscribers
+    instances = subscribers.select { |x| klasses.include?(x.class) }
+    instances.each { |subscriber| unsubscribe(subscriber) }
   end
 
   # private
 
-  def unsubscribe(sub)
-    sub.patterns.each { |p| ActiveSupport::Notifications.unsubscribe(p) }
-    ActiveSupport::LogSubscriber.log_subscribers.delete(sub)
+  def unsubscribe(instance)
+    instance.patterns.each do |ev|
+      ActiveSupport::Notifications.notifier.listeners_for(ev).each do |sub|
+        next unless instance == sub.instance_variable_get(:@delegate)
+        ActiveSupport::Notifications.unsubscribe(sub)
+      end
+    end
+
+    ActiveSupport::LogSubscriber.subscribers.delete(instance)
   end
 end
